@@ -9,16 +9,20 @@ import java.util.Scanner;
 public class FinalProject {
 	static String option;
 	static String userInput; 
-	
+	static boolean hasNBeenSelected = false; 
+	static int userNum; 
+	static int refNumLen;
+	static boolean valid = false; 
+	static int refString[]; 
 	FinalProject(){
-		
-	}
-	
-	 public static void main(String[] args) {
 		do {
 		 menu(); 
 		 selection(option);
-		}while (option != "0"); 
+		}while (option != "0");
+	}
+	
+	 public static void main(String[] args) {
+		 new FinalProject(); 
 	}
 	
 	static String menu() {
@@ -38,24 +42,60 @@ public class FinalProject {
 	
 	static void selection (String input) {
 		Scanner scan = new Scanner(System.in);
-		int userNum; 
+		Scanner scanInt = new Scanner(System.in); 
 		
 		switch(input) {
 		
 		case "0":
 			option = "0"; 
 			break; 
+		
 		case "1":
 			System.out.println("Enter a positive integer between 2 and 8 ");
+			try {
 			userNum = Integer.parseInt(scan.nextLine()); 
 			if (userNum >=2 && userNum <9) {
-				System.out.println("Okay");
-			}else {
-				System.out.println("Not Okay");
+				hasNBeenSelected = true;
+			} else {
+				System.out.println("Wrong value entered");
 			}
+			}catch (NumberFormatException e){
+				System.out.println("Please enter a valid number");
+			}	
+					
+			
 			break; 
 			
 		case "2":
+			valid = false; 
+			if(hasNBeenSelected == true) {
+			System.out.println("The Reference String numbers must be between 0-9 and must be at least as long as " + userNum+ " but no longer than 20");
+			System.out.println("How many numbers do you want to enter? ");
+			try {
+			while(!valid) {
+				refNumLen = Integer.parseInt(scanInt.nextLine()); 
+				if(refNumLen >= userNum && refNumLen < 21) {
+					valid = true;
+					inputString(); 
+				}else {
+					System.out.println("The Reference String numbers must be between 0-9 and must be at least as long as \" + userNum+ \" but no longer than 20");
+					System.out.println("How many numbers do you want to enter? ");
+					 
+				}
+			}
+			
+			}
+			
+			catch(NumberFormatException e){
+				System.out.println("Please enter a valid number");
+			}
+			
+
+			}else {
+				System.out.println("User must enter an input N");
+			
+				
+			}
 			
 			break; 
 			
@@ -73,6 +113,17 @@ public class FinalProject {
 		
 	}
 	
+	static void inputString() {
+		Scanner scanner = new Scanner(System.in); 
+		refString = new int[refNumLen]; 
+		for(int i = 0; i < refString.length; i++) {
+			System.out.println("Enter number " +(1+i));
+			refString[i] = Integer.parseInt(scanner.nextLine()); 
+		}
+		for(int i = 0; i < refString.length; i++) {
+			System.out.println(refString[i]);
+		}
+	}
 	
 	
 }
