@@ -14,6 +14,8 @@ public class FinalProject {
 	static int refNumLen;
 	static boolean valid = false; 
 	static int refString[]; 
+	static boolean referenceString = false ; 
+	static String table[][]; 
 	FinalProject(){
 		do {
 		 menu(); 
@@ -76,9 +78,10 @@ public class FinalProject {
 				refNumLen = Integer.parseInt(scanInt.nextLine()); 
 				if(refNumLen >= userNum && refNumLen < 21) {
 					valid = true;
+					referenceString = true; 
 					inputString(); 
 				}else {
-					System.out.println("The Reference String numbers must be between 0-9 and must be at least as long as \" + userNum+ \" but no longer than 20");
+					System.out.println("The Reference String numbers must be between 0-9 and must be at least as long as " + userNum+ " but no longer than 20");
 					System.out.println("How many numbers do you want to enter? ");
 					 
 				}
@@ -100,6 +103,11 @@ public class FinalProject {
 			break; 
 			
 		case "3":
+			if(referenceString == true) {
+				optAlgorithm(); 
+			}else {
+				System.out.println("Please input a correct N value");
+			}
 			
 			break;
 			
@@ -125,5 +133,40 @@ public class FinalProject {
 		}
 	}
 	
-	
+	static void optAlgorithm() {
+		optTable(); 
+	}
+	static void optTable() {
+		//table needs to be moved to option 2
+		table = new String [userNum+2][refNumLen]; 
+		for(int i = 0 ; i < userNum+2; i++) 
+			for (int j = 0; j < refNumLen; j++){
+			table[i][j] = " "; 
+		}
+		System.out.println("------------------------------------------------------------------------------------------------");
+		System.out.print("Reference string |");
+		for(int i = 0; i < refNumLen; i++) {
+			System.out.print(table[0][i] + " |");
+		}
+		System.out.println();
+		System.out.println("------------------------------------------------------------------------------------------------");
+		for(int i = 0; i < userNum; i++) {
+			System.out.print("Physical frame "+ i +" |");
+		
+			for(int j = 0; j < refNumLen; j++) {
+				System.out.print(table[i][j]+" |");
+			}System.out.println();
+		}	
+		System.out.println("------------------------------------------------------------------------------------------------");
+		System.out.print("Page Faults      |");
+		for(int i = 0; i < refNumLen; i++) {
+			System.out.print(table[userNum][i]+" |");
+		}
+		System.out.println();
+		System.out.print("Victim Pages     |");
+		for(int i = 0; i < refNumLen; i++) {
+			System.out.print(table[userNum+1][i]+" |");
+		}
+		System.out.println("\n\n");
+	}
 }
