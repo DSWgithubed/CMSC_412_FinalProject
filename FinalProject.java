@@ -16,6 +16,9 @@ public class FinalProject {
 	static int refString[]; 
 	static boolean referenceString = false ; 
 	static String table[][]; 
+	static int columnTracker=0; 
+	static String flush; 
+	
 	FinalProject(){
 		do {
 		 menu(); 
@@ -79,6 +82,13 @@ public class FinalProject {
 				if(refNumLen >= userNum && refNumLen < 21) {
 					valid = true;
 					referenceString = true; 
+					
+					table = new String [userNum+3][refNumLen]; 
+					for(int i = 0 ; i < userNum+3; i++) 
+						for (int j = 0; j < refNumLen; j++){
+						table[i][j] = " "; 
+					}
+					
 					inputString(); 
 				}else {
 					System.out.println("The Reference String numbers must be between 0-9 and must be at least as long as " + userNum+ " but no longer than 20");
@@ -112,6 +122,11 @@ public class FinalProject {
 			break;
 			
 		case "4":
+			if(referenceString == true) {
+				newAlgorithm(); 
+			}else {
+				System.out.println("Please input a correct N value");
+			}
 			
 			break; 
 			
@@ -125,24 +140,40 @@ public class FinalProject {
 		Scanner scanner = new Scanner(System.in); 
 		refString = new int[refNumLen]; 
 		for(int i = 0; i < refString.length; i++) {
+			do {
 			System.out.println("Enter number " +(1+i));
+			
 			refString[i] = Integer.parseInt(scanner.nextLine()); 
+			}while(refString[i] < 0 || refString[i] > 9);
 		}
+			 
+		
+			
 		for(int i = 0; i < refString.length; i++) {
-			System.out.println(refString[i]);
-		}
+			table[0][i] = String.valueOf(refString[i]) ;
+			}
+		
 	}
 	
 	static void optAlgorithm() {
+		Scanner scan = new Scanner(System.in); 
+		tableReset(); columnTracker = 0; 
+		while(columnTracker< refNumLen) {
 		optTable(); 
+		add();
+		optTable(); 
+		
+		nextCol();
+		
+		if(columnTracker < refNumLen) {
+		columnTracker++;
+		}
+		optTable();
+		String nothing=scan.nextLine(); 
+		}
 	}
 	static void optTable() {
-		//table needs to be moved to option 2
-		table = new String [userNum+2][refNumLen]; 
-		for(int i = 0 ; i < userNum+2; i++) 
-			for (int j = 0; j < refNumLen; j++){
-			table[i][j] = " "; 
-		}
+		
 		System.out.println("------------------------------------------------------------------------------------------------");
 		System.out.print("Reference string |");
 		for(int i = 0; i < refNumLen; i++) {
@@ -154,19 +185,192 @@ public class FinalProject {
 			System.out.print("Physical frame "+ i +" |");
 		
 			for(int j = 0; j < refNumLen; j++) {
-				System.out.print(table[i][j]+" |");
+				System.out.print(table[i+1][j]+" |");
 			}System.out.println();
 		}	
 		System.out.println("------------------------------------------------------------------------------------------------");
 		System.out.print("Page Faults      |");
 		for(int i = 0; i < refNumLen; i++) {
-			System.out.print(table[userNum][i]+" |");
+			System.out.print(table[userNum+1][i]+" |");
 		}
 		System.out.println();
 		System.out.print("Victim Pages     |");
 		for(int i = 0; i < refNumLen; i++) {
-			System.out.print(table[userNum+1][i]+" |");
+			System.out.print(table[userNum+2][i]+" |");
 		}
 		System.out.println("\n\n");
+	}
+	
+	static void add() {
+		int i = 0; 
+		if (alreadyPres()) {
+			return; 
+		}
+		if (!isFull()) {
+		for (;i < userNum; i++) {
+			if (columnTracker > userNum) {break;}
+			if (table[i+1][columnTracker] == " ") {
+				table[i+1][columnTracker] = table[0][columnTracker];
+				table[userNum+1][columnTracker] = "F"; 
+				break; 
+			}
+			
+		}
+		}else {
+				flush = optFind();
+				table[userNum+2][columnTracker]= flush; 
+				table[userNum+1][columnTracker] = "F"; 
+				for (int i1 =0; i1 < userNum+1; i1++) {
+					if (flush.equals(table[i1+1][columnTracker])) {
+						table[i1+1][columnTracker] = table[0][columnTracker]; 
+					}
+				}
+			}
+		}	
+	
+
+	public static void nextCol() {
+		for (int k = 0; k < userNum; k++ ) {//add next column to table data
+			if (columnTracker+1 == refNumLen) {
+				return; 
+			}
+			if (columnTracker < refNumLen) {
+			table[k+1][columnTracker+1] = table[k+1][columnTracker]; 
+			}
+			}
+			
+	}
+	
+	static String optFind() {//storing string in array 
+		int next = 0; 
+		boolean foundTrue[] = new boolean[userNum];  
+		String list[] = new String [userNum]; 
+//		for (int i = 0; i < refNumLen-columnTracker; i++) {//changed to 0
+//			foundTrue[i] = false; 
+//		}
+		
+		for (int i = columnTracker; i< refNumLen; i++) {//column tracker so to know where to start
+			for(int j = 1; j < userNum+1; j++) {//set j to 1 to offset the ref string row
+				if (foundTrue[j-1] != false) {
+					continue;
+				}else if(foundTrue[j-1]== false && table[j][columnTracker].equals(table[0][i])   ) {
+					list[next] = table[0][i]; 
+					next++; 
+					foundTrue[j-1] = true; 
+				
+				}
+			}
+			
+		}
+		for (int i = 0; i < userNum; i++) { //idea is if the string is not in the array it is not used and should be discarded next
+			if(foundTrue[i] == false) {
+				return table[i+1][columnTracker];
+			
+			} 
+		
+		}
+		return list[userNum-1];//idea is return the last value added to the list as farthest out
+			
+		
+		
+	}
+	static boolean isFull() {
+		for(int i = 0; i < userNum; i++) 
+			if (table[i+1][columnTracker] == " ")
+				return false;
+			
+		return true; 
+		
+	}
+	static boolean alreadyPres() {
+		for(int i = 0; i < userNum +1; i++) {
+			if (table[1+i][columnTracker].contentEquals(table[0][columnTracker]) ) {
+				return true;
+			}
+		}return false; 
+		
+	}
+	static void tableReset() {
+		for(int i = 1 ; i < userNum+3; i++) 
+			for (int j = 0; j < refNumLen; j++){
+			table[i][j] = " "; 
+		}
+	}
+	
+	static void newAlgorithm() {
+		Scanner scan = new Scanner(System.in); 
+		tableReset(); columnTracker = 0; 
+		while(columnTracker< refNumLen) {
+		optTable(); 
+		addNew();
+		optTable(); 
+		
+		nextCol();
+		
+		if(columnTracker < refNumLen) {
+		columnTracker++;
+		}
+		optTable();
+		String nothing=scan.nextLine(); 
+		
+		
+		}
+	}
+	static void addNew() {
+		int i = 0; 
+		if (alreadyPres()) {
+			return; 
+		}
+		if (!isFull()) {
+		for (;i < userNum; i++) {
+			if (columnTracker > userNum) {break;}
+			if (table[i+1][columnTracker] == " ") {
+				table[i+1][columnTracker] = table[0][columnTracker];
+				table[userNum+1][columnTracker] = "F"; 
+				break; 
+			}
+			
+		}
+		}else {
+				flush = newFind();
+				table[userNum+2][columnTracker]= flush; 
+				table[userNum+1][columnTracker] = "F"; 
+				for (int i1 =0; i1 < userNum+1; i1++) {
+					if (flush.equals(table[i1+1][columnTracker])) {
+						table[i1+1][columnTracker] = table[0][columnTracker]; 
+					}
+				}
+			}
+		}	
+	static String newFind() {//storing string in array 
+		int next = 0; 
+		boolean foundTrue[] = new boolean[userNum];  
+		String list[] = new String [userNum]; 
+
+		
+		for (int i = columnTracker; i< refNumLen; i++) {//column tracker so to know where to start
+			for(int j = 1; j < userNum+1; j++) {//set j to 1 to offset the ref string row
+				if (foundTrue[j-1] != false) {
+					continue;
+				}else if(foundTrue[j-1]== false && table[j][columnTracker].equals(table[0][i])   ) {
+					list[next] = table[0][i]; 
+					next++; 
+					foundTrue[j-1] = true; 
+				
+				}
+			}
+			
+		}
+		for (int i = 0; i < userNum; i++) { //idea is if the string is not in the array it is not used and should be discarded next
+			if(foundTrue[i] == false) {
+				return table[i+1][columnTracker];
+			
+			} 
+		
+		}
+		return list[userNum-2];//idea is return the last value added to the list as farthest out
+			
+		
+		
 	}
 }
